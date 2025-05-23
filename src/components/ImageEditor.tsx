@@ -19,6 +19,7 @@ import {
   SelectValue 
 } from "./ui/select";
 import { toast } from "sonner";
+import { ZoomIn, ZoomOut } from "lucide-react";
 
 interface ImageEditorProps {
   file: File;
@@ -30,6 +31,8 @@ const ImageEditor = ({ file, onBack }: ImageEditorProps) => {
   const [brightness, setBrightness] = useState(100);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
+  const [originalWidth, setOriginalWidth] = useState(0);
+  const [originalHeight, setOriginalHeight] = useState(0);
   const [rotation, setRotation] = useState(0);
   const [scale, setScale] = useState(100);
   const [quality, setQuality] = useState(90);
@@ -48,6 +51,8 @@ const ImageEditor = ({ file, onBack }: ImageEditorProps) => {
       imageRef.current = img;
       setWidth(img.width);
       setHeight(img.height);
+      setOriginalWidth(img.width);
+      setOriginalHeight(img.height);
       drawImage();
     };
     img.src = url;
@@ -119,6 +124,22 @@ const ImageEditor = ({ file, onBack }: ImageEditorProps) => {
       setWidth(Math.round(newHeight * aspectRatio));
     }
   };
+
+  const increaseSize = (percentage: number) => {
+    const factor = 1 + (percentage / 100);
+    setWidth(Math.round(width * factor));
+    setHeight(Math.round(height * factor));
+    setScale(Math.round(scale * factor));
+    toast.success(`Size increased by ${percentage}%`);
+  };
+
+  const decreaseSize = (percentage: number) => {
+    const factor = 1 - (percentage / 100);
+    setWidth(Math.round(width * factor));
+    setHeight(Math.round(height * factor));
+    setScale(Math.round(scale * factor));
+    toast.success(`Size decreased by ${percentage}%`);
+  };
   
   const handleRotate = (degrees: number) => {
     setRotation((prev) => (prev + degrees) % 360);
@@ -158,11 +179,12 @@ const ImageEditor = ({ file, onBack }: ImageEditorProps) => {
   
   const handleResetImage = () => {
     if (imageRef.current) {
-      setWidth(imageRef.current.width);
-      setHeight(imageRef.current.height);
+      setWidth(originalWidth);
+      setHeight(originalHeight);
       setBrightness(100);
       setRotation(0);
       setScale(100);
+      toast.info("Image reset to original");
     }
   };
   
@@ -195,7 +217,27 @@ const ImageEditor = ({ file, onBack }: ImageEditorProps) => {
             
             <div className="lg:col-span-4 space-y-6">
               <div className="space-y-4">
-                <h3 className="font-medium">Dimensions</h3>
+                <h3 className="font-medium">Resize Image</h3>
+                
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1" 
+                    onClick={() => decreaseSize(10)}
+                  >
+                    <ZoomOut size={18} className="mr-1" />
+                    Decrease Size
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1" 
+                    onClick={() => increaseSize(10)}
+                  >
+                    <ZoomIn size={18} className="mr-1" />
+                    Increase Size
+                  </Button>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="width">Width (px)</Label>

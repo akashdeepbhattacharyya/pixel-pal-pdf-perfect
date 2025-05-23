@@ -19,6 +19,7 @@ import {
   SelectValue 
 } from "./ui/select";
 import { toast } from "sonner";
+import { ZoomIn, ZoomOut } from "lucide-react";
 
 // Note: In a real implementation, we would use a PDF library like PDF.js
 // This is a simplified version for the prototype
@@ -35,6 +36,8 @@ const PdfEditor = ({ file, onBack }: PdfEditorProps) => {
   const [width, setWidth] = useState(595); // Default A4 width in points
   const [height, setHeight] = useState(842); // Default A4 height in points
   const [outputFormat, setOutputFormat] = useState("pdf");
+  const [originalWidth, setOriginalWidth] = useState(595);
+  const [originalHeight, setOriginalHeight] = useState(842);
   
   useEffect(() => {
     const url = URL.createObjectURL(file);
@@ -60,13 +63,30 @@ const PdfEditor = ({ file, onBack }: PdfEditorProps) => {
       setHeight(newHeight);
     }
   };
+
+  const increaseSize = (percentage: number) => {
+    const factor = 1 + (percentage / 100);
+    setWidth(Math.round(width * factor));
+    setHeight(Math.round(height * factor));
+    setScaleFactor(Math.round(scaleFactor * factor));
+    toast.success(`Size increased by ${percentage}%`);
+  };
+
+  const decreaseSize = (percentage: number) => {
+    const factor = 1 - (percentage / 100);
+    setWidth(Math.round(width * factor));
+    setHeight(Math.round(height * factor));
+    setScaleFactor(Math.round(scaleFactor * factor));
+    toast.success(`Size decreased by ${percentage}%`);
+  };
   
   const handleReset = () => {
     setScaleFactor(100);
     setCompressionLevel(80);
-    setWidth(595);
-    setHeight(842);
+    setWidth(originalWidth);
+    setHeight(originalHeight);
     setOutputFormat("pdf");
+    toast.info("Settings reset to default");
   };
   
   const handleDownload = () => {
@@ -116,7 +136,27 @@ const PdfEditor = ({ file, onBack }: PdfEditorProps) => {
             
             <div className="lg:col-span-4 space-y-6">
               <div className="space-y-4">
-                <h3 className="font-medium">Page Dimensions</h3>
+                <h3 className="font-medium">Resize PDF</h3>
+                
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1" 
+                    onClick={() => decreaseSize(10)}
+                  >
+                    <ZoomOut size={18} className="mr-1" />
+                    Decrease Size
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="flex-1" 
+                    onClick={() => increaseSize(10)}
+                  >
+                    <ZoomIn size={18} className="mr-1" />
+                    Increase Size
+                  </Button>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="width">Width (pts)</Label>

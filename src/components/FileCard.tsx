@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
-import { Image } from 'lucide-react';
+import { ZoomIn } from 'lucide-react';
 
 interface FileCardProps {
   title: string;
